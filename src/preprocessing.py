@@ -19,6 +19,7 @@ contours, hierarch = cv2.findContours(canny.copy(), cv2.RETR_LIST, cv2.CHAIN_APP
 
 # rboxes = []
 detected = False
+contour = []
 
 # loop over the contours
 for cnt in contours:
@@ -34,7 +35,7 @@ for cnt in contours:
 	    # print("rot_angle:", rot_angle)  
 	    # rboxes.append(rbox)
 
-		contour = cnt
+		contour.append(cnt)
 		detected = True
 
 		break
@@ -47,11 +48,14 @@ cv2.rectangle(img, (int(iw/2-0.1*iw),int(ih/2-0.1*ih)), (int(iw/2+0.1*iw),int(ih
 
 if detected is True:
 
+	# draw contour
+	cv2.drawContours(img, contour, -1, (255, 0, 0), 2)
+
 	## Draw rect
 	cv2.rectangle(img, (x,y), (x+w,y+h), (0,0,255), 2, 16)
 	cv2.drawMarker(img, (cx,cy), (0,0,255),markerType=cv2.MARKER_CROSS, markerSize=20, thickness=3, line_type=cv2.LINE_AA)
 
-	cv2.drawContours(img, contour, -1, (255, 0, 0), 2)
+
 	cv2.imshow('Image',img)
 
 	img_roi = image[y:y+h, x:x+w]
