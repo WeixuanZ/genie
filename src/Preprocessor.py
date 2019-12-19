@@ -2,7 +2,8 @@ import cv2
 import numpy as np
 
 
-# def img_resize(img, img_size):
+def img_resize(img, img_size):
+	return cv2.resize(img, img_size, interpolation = cv2.INTER_AREA)
 
 def read_img(img_path):
 	return cv2.imread(img_path)
@@ -11,7 +12,7 @@ def create_emptyimg(img_size):
 	return np.zeros([imgSize[1], imgSize[0]])
 
 
-def preprocess(image, img_size = (0,0), verbose = False):
+def preprocess(image, img_size = (152,34), verbose = False):
 	'''Function extracting the ROI and preprocessing it.
 
 	If no ROI is detected, empty image of the specified size is returned. Note that the annotated input image is never resized.
@@ -65,7 +66,7 @@ def preprocess(image, img_size = (0,0), verbose = False):
 		roi_thresh = cv2.erode(roi_thresh,kernel,iterations = 1)
 
 		if verbose is False:
-			return roi_gray, roi_thresh
+			return img_resize(roi_gray,img_size), img_resize(roi_thresh,img_size)
 		else:
 			# Reference
 			cv2.drawMarker(img, (int(iw/2),int(ih/2)), (0,255,0),markerType=cv2.MARKER_CROSS, markerSize=20, thickness=3, line_type=cv2.LINE_AA)
@@ -77,7 +78,7 @@ def preprocess(image, img_size = (0,0), verbose = False):
 			cv2.rectangle(img, (x,y), (x+w,y+h), (0,0,255), 2, 16)
 			cv2.drawMarker(img, (cx,cy), (0,0,255),markerType=cv2.MARKER_CROSS, markerSize=20, thickness=3, line_type=cv2.LINE_AA)
 
-			return img, roi_gray, roi_thresh
+			return img, img_resize(roi_gray,img_size), img_resize(roi_thresh,img_size)
 
 	
 	else:
@@ -85,18 +86,22 @@ def preprocess(image, img_size = (0,0), verbose = False):
 		empty_img = create_emptyimg(img_size)
 
 		if verbose is False:
-			return empty_img, empty_img
+			return img_resize(empty_img,img_size), img_resize(empty_img,img_size)
 		else:
 			cv2.putText(img, 'No meter reading detected', (int(iw/2-200),int(ih/2-100)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
-			return img, empty_img, empty_img
+			return img, img_resize(empty_img,img_size), img_resize(empty_img,img_size)
+
+
 
 
 if __name__ == '__main__':
 
-	img, img_roi, roi_thresh = preprocess(read_img('test.png'), verbose=True)
+	img, roi_gray, roi_thresh = preprocess(read_img('test.png'), verbose=True)
+
+	print(roi_gray.shape)
 
 	cv2.imshow('Image',img)
-	cv2.imshow('ROI',img_roi)
+	cv2.imshow('ROI',roi_gray)
 	cv2.imshow('Threshed',roi_thresh)
 
 	cv2.waitKey(0)
