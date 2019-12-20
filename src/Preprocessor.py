@@ -32,7 +32,7 @@ def extract_roi(image, img_size = (152,34), verbose = False):
 
 	gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 	# reduce noise
-	blur = cv2.GaussianBlur(gray, (7, 7), 0)
+	blur = cv2.GaussianBlur(gray, (5, 5), 0)
 	# edge detection using Canny
 	canny = cv2.Canny(blur, 50, 150)
 
