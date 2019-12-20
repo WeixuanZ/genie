@@ -9,7 +9,7 @@ def read_img(img_path):
 	return cv2.imread(img_path)
 
 def create_emptyimg(img_size):
-	return np.zeros([imgSize[1], imgSize[0]])
+	return np.zeros([img_size[1], img_size[0]])
 
 
 def extract_roi(image, img_size = (152,34), verbose = False):
@@ -32,7 +32,8 @@ def extract_roi(image, img_size = (152,34), verbose = False):
 
 	gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
 	# reduce noise
-	blur = cv2.GaussianBlur(gray, (5, 5), 0)
+	# blur = cv2.GaussianBlur(gray, (3, 3), 0)
+	blur = gray
 	# edge detection using Canny
 	canny = cv2.Canny(blur, 50, 150)
 
@@ -47,15 +48,17 @@ def extract_roi(image, img_size = (152,34), verbose = False):
 		x,y,w,h = cv2.boundingRect(cnt)
 		(cx,cy) = (int(x+w/2), int(y+h/2))
 
-		if (w > 100 or h > 30 or w*h > 3000) and (w < 300 and h < 100) and (iw/2-0.1*iw < cx < iw/2+0.1*iw and ih/2-0.1*ih < cy < ih/2+0.1*ih):
+		if (w > 100 and h > 25) and (w < 300 and h < 100) and (iw/2-0.05*iw < cx < iw/2+0.05*iw and ih/2-0.05*ih < cy < ih/2+0.05*ih):
 			contour.append(cnt)
 			detected = True
 
+			if w < 5.6 * h:
+				w = 5.6 * h
 			break
 
 	if detected is True:
 
-		img_roi = image[y:y+h, x:x+w]
+		img_roi = image[y:y+h, x:int(x+w)]
 		roi_gray = cv2.bitwise_not(cv2.cvtColor(img_roi, cv2.COLOR_RGB2GRAY))
 		roi_blur = cv2.medianBlur(roi_gray,3)
 
@@ -70,7 +73,7 @@ def extract_roi(image, img_size = (152,34), verbose = False):
 		else:
 			# Reference
 			cv2.drawMarker(img, (int(iw/2),int(ih/2)), (0,255,0),markerType=cv2.MARKER_CROSS, markerSize=20, thickness=3, line_type=cv2.LINE_AA)
-			cv2.rectangle(img, (int(iw/2-0.1*iw),int(ih/2-0.1*ih)), (int(iw/2+0.1*iw),int(ih/2+0.1*ih)), (0,255,0), 2)
+			cv2.rectangle(img, (int(iw/2-0.05*iw),int(ih/2-0.05*ih)), (int(iw/2+0.05*iw),int(ih/2+0.05*ih)), (0,255,0), 2)
 			# draw contour
 			cv2.drawContours(img, contour, -1, (255, 0, 0), 2)
 
