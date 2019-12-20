@@ -20,7 +20,7 @@ class FilePaths:
 parser = argparse.ArgumentParser(prog='train_prep',usage='%(prog)s [options] path', description='Prepare the training data by extracing the roi.')
 
 parser.add_argument('Path', metavar='path', type=str, nargs='+', help='the path to raw images')
-parser.add_argument('-d', '--divide', type=float, help='divide the images into a training set and a test set')
+parser.add_argument('-d', '--divide', type=float, help='divide the images into a training set and a test set, give the proportion of test images')
 parser.add_argument('--clear', action='store_true', help='clear the output directory')
 
 
@@ -65,6 +65,21 @@ elif args.clear:
 	os.system('(cd {} && rm ./*.png)'.format(FilePaths.threshed))
 	os.system('(cd {} && rm ./*.png)'.format(FilePaths.threshed_test))
 	os.system('(cd {} && rm ./*.png)'.format(FilePaths.threshed_train))
+else:
+	permuted = np.random.permutation(input_path)
+	index = int(len(input_path) * args.divide)
+	test_path, train_path = permuted[:index], permuted[index:]
+	for path in test_path:
+		roi_gray, roi_thresh = extract_roi(read_img(path))
+		cv2.imwrite(FilePaths.gray_test + os.path.basename(path), roi_gray)
+		cv2.imwrite(FilePaths.threshed_test + os.path.basename(path), roi_thresh)
+		printProgressBar(test_path.tolist().index(path), len(input_path), prefix = 'Progress:', suffix = 'Complete')
+	for path in train_path:
+		roi_gray, roi_thresh = extract_roi(read_img(path))
+		cv2.imwrite(FilePaths.gray_train + os.path.basename(path), roi_gray)
+		cv2.imwrite(FilePaths.threshed_train + os.path.basename(path), roi_thresh)
+		printProgressBar(train_path.tolist().index(path) + len(test_path), len(input_path), prefix = 'Progress:', suffix = 'Complete')
+
 
 
 
