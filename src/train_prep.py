@@ -1,7 +1,5 @@
 import os
-import sys
 import argparse
-import random
 import numpy as np
 import cv2
 
