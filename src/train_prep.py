@@ -20,11 +20,13 @@ class FilePaths:
 parser = argparse.ArgumentParser(prog='train_prep',usage='%(prog)s [options] path', description='Prepare the training data by extracing the roi.')
 
 parser.add_argument('Path', metavar='path', type=str, nargs='+', help='the path to raw images')
-parser.add_argument('-d', '--divide', type=float, default=0.95, help='divide the images into a training set and a test set')
+parser.add_argument('-d', '--divide', type=float, help='divide the images into a training set and a test set')
+parser.add_argument('--clear', action='store_true', help='clear the output directory')
 
 
 args = parser.parse_args()
 input_path = args.Path
+# print(args)
 
 
 # Print iterations progress from https://stackoverflow.com/questions/3173320/text-progress-bar-in-the-console
@@ -49,12 +51,21 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     if iteration == total: 
         print()
 
+if args.divide is None and args.clear is False:
+	for path in input_path:
+		roi_gray, roi_thresh = extract_roi(read_img(path))
+		cv2.imwrite(FilePaths.gray + os.path.basename(path), roi_gray)
+		cv2.imwrite(FilePaths.threshed + os.path.basename(path), roi_thresh)
+		printProgressBar(input_path.index(path), len(input_path), prefix = 'Progress:', suffix = 'Complete')
+elif args.clear:
+	print("Removing all the images")
+	os.system('(cd {} && rm ./*.png)'.format(FilePaths.gray))
+	os.system('(cd {} && rm ./*.png)'.format(FilePaths.gray_test))
+	os.system('(cd {} && rm ./*.png)'.format(FilePaths.gray_train))
+	os.system('(cd {} && rm ./*.png)'.format(FilePaths.threshed))
+	os.system('(cd {} && rm ./*.png)'.format(FilePaths.threshed_test))
+	os.system('(cd {} && rm ./*.png)'.format(FilePaths.threshed_train))
 
-for path in input_path:
-	roi_gray, roi_thresh = extract_roi(read_img(path))
-	cv2.imwrite(FilePaths.gray+os.path.basename(path), roi_gray)
-	cv2.imwrite(FilePaths.threshed+os.path.basename(path), roi_thresh)
-	printProgressBar(input_path.index(path), len(input_path))
 
 
 
