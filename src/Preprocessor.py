@@ -12,7 +12,7 @@ def create_emptyimg(img_size):
 	return np.zeros([imgSize[1], imgSize[0]])
 
 
-def preprocess(image, img_size = (152,34), verbose = False):
+def extract_roi(image, img_size = (152,34), verbose = False):
 	'''Function extracting the ROI and preprocessing it.
 
 	If no ROI is detected, empty image of the specified size is returned. Note that the annotated input image is never resized.
@@ -96,7 +96,7 @@ def preprocess(image, img_size = (152,34), verbose = False):
 
 if __name__ == '__main__':
 
-	img, roi_gray, roi_thresh = preprocess(read_img('test.png'), verbose=True)
+	img, roi_gray, roi_thresh = extract_roi(read_img('test.png'), verbose=True)
 
 	print(roi_gray.shape)
 
