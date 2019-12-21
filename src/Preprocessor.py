@@ -96,6 +96,17 @@ def extract_roi(image, img_size = (152,34), verbose = False):
 			return img, img_resize(empty_img,img_size), img_resize(empty_img,img_size)
 
 
+# Modified for Felix's code
+def remove_border(img):
+	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
+	for i, row in enumerate(img):
+		if np.count_nonzero(row) < 80:
+		    img[i,:] = np.ones(152, np.uint8) * 255
+	for i, col in enumerate(img[:]):
+		if np.count_nonzero(col) < 5:
+		    img[:, i] = np.ones(34, np.uint8) * 255
+
+	return img
 
 
 if __name__ == '__main__':
@@ -106,7 +117,7 @@ if __name__ == '__main__':
 
 	cv2.imshow('Image',img)
 	cv2.imshow('ROI',roi_gray)
-	cv2.imshow('Threshed',roi_thresh)
+	cv2.imshow('Threshed',remove_border(roi_thresh))
 
 	cv2.waitKey(0)
 

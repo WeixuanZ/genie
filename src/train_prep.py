@@ -53,7 +53,7 @@ if args.divide is None and args.clear is False:
 	for path in input_path:
 		roi_gray, roi_thresh = extract_roi(read_img(path))
 		cv2.imwrite(FilePaths.gray + os.path.basename(path), roi_gray)
-		cv2.imwrite(FilePaths.threshed + os.path.basename(path), roi_thresh)
+		cv2.imwrite(FilePaths.threshed + os.path.basename(path), remove_border(roi_thresh))
 		printProgressBar(input_path.index(path), len(input_path), prefix = 'Progress:', suffix = 'Complete')
 elif args.clear:
 	print("Removing all the images")
@@ -70,12 +70,12 @@ else:
 	for path in test_path:
 		roi_gray, roi_thresh = extract_roi(read_img(path))
 		cv2.imwrite(FilePaths.gray_test + os.path.basename(path), roi_gray)
-		cv2.imwrite(FilePaths.threshed_test + os.path.basename(path), roi_thresh)
+		cv2.imwrite(FilePaths.threshed_test + os.path.basename(path), remove_border(roi_thresh))
 		printProgressBar(test_path.tolist().index(path), len(input_path), prefix = 'Progress:', suffix = 'Complete')
 	for path in train_path:
 		roi_gray, roi_thresh = extract_roi(read_img(path))
 		cv2.imwrite(FilePaths.gray_train + os.path.basename(path), roi_gray)
-		cv2.imwrite(FilePaths.threshed_train + os.path.basename(path), roi_thresh)
+		cv2.imwrite(FilePaths.threshed_train + os.path.basename(path), remove_border(roi_thresh))
 		printProgressBar(train_path.tolist().index(path) + len(test_path), len(input_path), prefix = 'Progress:', suffix = 'Complete')
 
 
