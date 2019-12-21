@@ -9,7 +9,7 @@ def read_img(img_path):
 	return cv2.imread(img_path)
 
 def create_emptyimg(img_size):
-	return np.zeros([img_size[1], img_size[0]])
+	return np.zeros([img_size[1], img_size[0]], np.uint8)
 
 
 def extract_roi(image, img_size = (152,34), verbose = False):
@@ -67,6 +67,7 @@ def extract_roi(image, img_size = (152,34), verbose = False):
 		kernel = np.ones((2,2),np.uint8)
 		roi_thresh = cv2.dilate(roi_thresh,kernel,iterations = 2)
 		roi_thresh = cv2.erode(roi_thresh,kernel,iterations = 1)
+		roi_thresh = cv2.medianBlur(roi_thresh,3)
 
 		if verbose is False:
 			return img_resize(roi_gray,img_size), img_resize(roi_thresh,img_size)
