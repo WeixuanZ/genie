@@ -27,7 +27,7 @@ def create_emptyimg(img_size):
     return np.zeros([img_size[1], img_size[0]], np.uint8)
 
 
-def extract_roi(image, img_size=(152, 34), verbose=False):
+def extract_roi(image, img_size=(250, 30), verbose=False):
     '''Function extracting the ROI and preprocessing it.
 
     If no ROI is detected, empty image of the specified size is returned. Note that the annotated input image is never resized.
@@ -72,13 +72,11 @@ def extract_roi(image, img_size=(152, 34), verbose=False):
             contour.append(cnt)
             detected = True
 
-            if w < 5.6 * h:
-                w = 5.6 * h
             break
 
     if detected is True:
 
-        img_roi = image[y:y + h, x:int(x + w)]
+        img_roi = image[y:y + h, x:x + w]
         roi_gray = cv2.bitwise_not(cv2.cvtColor(img_roi, cv2.COLOR_RGB2GRAY))
         roi_blur = cv2.medianBlur(roi_gray, 3)
 
@@ -91,7 +89,7 @@ def extract_roi(image, img_size=(152, 34), verbose=False):
         # roi_thresh = cv2.medianBlur(roi_thresh, 3)
 
         if verbose is False:
-            return roi_gray, roi_thresh
+            return img_resize(roi_gray,img_size), img_resize(roi_thresh,img_size)
         else:
             # Reference
             cv2.drawMarker(img, (int(iw / 2), int(ih / 2)), (0, 255, 0), markerType=cv2.MARKER_CROSS, markerSize=20,
@@ -102,7 +100,7 @@ def extract_roi(image, img_size=(152, 34), verbose=False):
             cv2.drawContours(img, contour, -1, (255, 0, 0), 2)
 
             ## Draw rect
-            cv2.rectangle(img, (x, y), (x + int(w), y + h), (0, 0, 255), 2, 16)
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 0, 255), 2, 16)
             cv2.drawMarker(img, (cx, cy), (0, 0, 255), markerType=cv2.MARKER_CROSS, markerSize=20, thickness=3,
                            line_type=cv2.LINE_AA)
 
@@ -129,16 +127,56 @@ def remove_border(image):
     return image
 
 
+def Euclidean(vec1, vec2):
+    """
+    Euclidean_Distance
+    :param vec1:
+    :param vec2:
+    :return:
+    """
+    npvec1, npvec2 = np.array(vec1), np.array(vec2)
+    return np.sqrt(((npvec1 - npvec2) ** 2).sum())
+
+
 def extract_digit(image, inc_last = False):
     mser = cv2.MSER_create(_min_area=50, _max_area=100)
     regions, boxes = mser.detectRegions(image)
+    fewer_boxes = []
+    distinct_boxes = []
     digits = []
-    print(boxes)
-    for box in boxes:
+
+    # removing duplicates
+    for box in boxes.tolist():
+        if box not in fewer_boxes:
+            fewer_boxes.append(box)
+
+    # print(len(fewer_boxes))
+
+    # removing similar
+    for j in fewer_boxes:
+        if distinct_boxes:
+            for k in range(len(distinct_boxes)):
+                if Euclidean(j, distinct_boxes[k]) > 10 and k == len(distinct_boxes) - 1:
+                    distinct_boxes.append(j)
+        else:
+            distinct_boxes.append(j)
+
+    # print(len(distinct_boxes))
+
+    # extracting digits and store to a list
+    for box in distinct_boxes[:8]:
         x, y, w, h = box
-        cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
-        cv2.imshow('Digits', image)
-        digits.append(image[y:y + h, x:x + w])
+        digit = image[y-2:y + h+2, x-2:x + w+2]
+        digit = img_resize(cv2.copyMakeBorder(digit, 2, 2, 2, 2, cv2.BORDER_CONSTANT, value=255),(32,32))
+        # digit = cv2.adaptiveThreshold(digit, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2)
+        digits.append(digit)
+
+    # for i in range(len(digits)):
+    #     cv2.imshow(str(i),digits[i])
+
+    return digits[:7] if inc_last else digits
+
+
 
 
 
@@ -147,10 +185,19 @@ if __name__ == '__main__':
 
     # print(roi_gray.shape)
 
-    cv2.imshow('Image', img)
-    cv2.imshow('ROI', roi_gray)
-    cv2.imshow('Threshed', remove_border(roi_thresh))
+    # cv2.imshow('Image', img)
+    # cv2.imshow('ROI', roi_gray)
+    # cv2.imshow('Threshed', remove_border(roi_thresh))
 
-    extract_digit(roi_thresh)
+    digits = extract_digit(remove_border(roi_thresh))
+
+    for i in range(len(digits)):
+        # digits[i] = cv2.adaptiveThreshold(digits[i], 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2)
+        # kernel = np.ones((5, 5))
+        # digits[i] = cv2.erode(digits[i], kernel, iterations=1)
+        # digits[i] = cv2.blur(digits[i], (5, 5))
+        # text = pytesseract.image_to_string(digits[i])
+        # print(text)
+        cv2.imwrite('./'+str(i)+'.png',digits[i])
 
     cv2.waitKey(0)
