@@ -21,7 +21,7 @@ args = parser.parse_args()
 input_path = args.Path
 
 # model = keras.models.load_model('../model/detector_MNIST_2.hdf5')
-model = keras.models.load_model('../model/detector_model_2.hdf5')
+model = keras.models.load_model('../model/detector_model_4.hdf5')
 
 result = []
 
@@ -68,6 +68,8 @@ else:
 				prediction = model.predict(digit)
 				digit_predict = np.argmax(prediction)
 				if i == 0:
+					digit_predict = 0
+				if digit_predict == 10:
 					digit_predict = 0
 				texts.append(str(digit_predict))
 		except:
