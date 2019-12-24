@@ -3,6 +3,13 @@ import numpy as np
 
 
 def img_resize(img, img_size):
+    """Function creates empty np.arrays of the specified dimensions to act as blank image
+    Args:
+        param1 (np.array): image to resize
+        param2 (int, int): (x, y) dimensions of output image
+    Returns:
+        (np.array): image of requested dimensions
+    """
     return cv2.resize(img, img_size, interpolation=cv2.INTER_AREA)
 
 
@@ -11,6 +18,12 @@ def read_img(img_path):
 
 
 def create_emptyimg(img_size):
+    """Function creates empty np.arrays of the specified dimensions to act as blank image
+    Args:
+        param1 (int, int): (x, y) dimensions of blank image
+    Returns:
+        np.array[int][int] of zeros
+    """
     return np.zeros([img_size[1], img_size[0]], np.uint8)
 
 
@@ -33,11 +46,15 @@ def extract_roi(image, img_size=(152, 34), verbose=False):
     img = image.copy()
 
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
-    # reduce noise
-    blur = cv2.GaussianBlur(gray, (7, 7), 0)
+    gray_thresh = np.uint8(np.where(gray > 140, 255, 0))
+    kernel = np.ones((5,5),np.uint8)
+    gray_thresh = cv2.erode(gray_thresh,kernel,iterations = 2)
+    gray_thresh = cv2.dilate(gray_thresh,kernel,iterations = 2)
+    # # reduce noise
+    # blur = cv2.GaussianBlur(gray, (7, 7), 0)
     # blur = gray
     # edge detection using Canny
-    canny = cv2.Canny(blur, 50, 150)
+    canny = cv2.Canny(gray_thresh, 50, 150)
 
     contours, hierarch = cv2.findContours(canny.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
 
@@ -66,14 +83,15 @@ def extract_roi(image, img_size=(152, 34), verbose=False):
         roi_blur = cv2.medianBlur(roi_gray, 3)
 
         roi_thresh = cv2.adaptiveThreshold(roi_blur, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2)
+        roi_thresh = cv2.medianBlur(roi_thresh, 3)
 
         kernel = np.ones((2, 2), np.uint8)
         roi_thresh = cv2.dilate(roi_thresh, kernel, iterations=2)
         roi_thresh = cv2.erode(roi_thresh, kernel, iterations=1)
-        roi_thresh = cv2.medianBlur(roi_thresh, 3)
+        # roi_thresh = cv2.medianBlur(roi_thresh, 3)
 
         if verbose is False:
-            return img_resize(roi_gray, img_size), img_resize(roi_thresh, img_size)
+            return roi_gray, roi_thresh
         else:
             # Reference
             cv2.drawMarker(img, (int(iw / 2), int(ih / 2)), (0, 255, 0), markerType=cv2.MARKER_CROSS, markerSize=20,
@@ -103,17 +121,25 @@ def extract_roi(image, img_size=(152, 34), verbose=False):
             return img, img_resize(empty_img, img_size), img_resize(empty_img, img_size)
 
 
-# Modified for Felix's code
-def remove_border(img):
-    img = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2)
-    for i, row in enumerate(img):
-        if np.count_nonzero(row) < 80:
-            img[i, :] = np.ones(152, np.uint8) * 255
-    for i, col in enumerate(img[:]):
-        if np.count_nonzero(col) < 5:
-            img[:, i] = np.ones(34, np.uint8) * 255
+def remove_border(image):
+    image[:3,:]=255
+    image[-3:, :] = 255
+    image[:, :3] = 255
+    image[:, -3:] = 255
+    return image
 
-    return img
+
+def extract_digit(image, inc_last = False):
+    mser = cv2.MSER_create(_min_area=50, _max_area=100)
+    regions, boxes = mser.detectRegions(image)
+    digits = []
+    print(boxes)
+    for box in boxes:
+        x, y, w, h = box
+        cv2.rectangle(image, (x, y), (x+w, y+h), (0, 255, 0), 2)
+        cv2.imshow('Digits', image)
+        digits.append(image[y:y + h, x:x + w])
+
 
 
 if __name__ == '__main__':
@@ -123,6 +149,8 @@ if __name__ == '__main__':
 
     cv2.imshow('Image', img)
     cv2.imshow('ROI', roi_gray)
-    cv2.imshow('Threshed', (roi_thresh))
+    cv2.imshow('Threshed', remove_border(roi_thresh))
+
+    extract_digit(roi_thresh)
 
     cv2.waitKey(0)
