@@ -48,18 +48,23 @@ if args.clear:
 	print("Removing all the images")
 	os.system('(cd {} && rm ./*.png)'.format('../data/result/'))
 
-
 else:
 	for path in input_path:
-		roi_gray, roi_thresh = extract_roi(read_img(path), img_size=(500,100))
+		roi_gray, roi_thresh = extract_roi(read_img(path))
+		digits = extract_digit(remove_border(roi_thresh))
+		texts = []
+		# print(digits)
 
-		# roi_thresh = remove_border(roi_thresh)
+		for i in digits:
+			i = img_resize(i,(100,100))
+			i = cv2.adaptiveThreshold(i, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2)
+			text = pytesseract.image_to_string(i, config='outputbase digits')
+			text = filter(lambda char: char not in " -?.!/;:", text)
+			text = "".join(list(text))
+			print(text)
+			texts.append(text)
 
-		text = pytesseract.image_to_string(roi_thresh, config='outputbase digits', lang="eng")
-		text = filter(lambda char: char not in " -?.!/;:", text)
-		text = "".join(list(text))
-
-		cv2.putText(roi_gray, text, (10,30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255), 2)
+		cv2.putText(roi_gray, str(''.join(texts)), (2,2), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255), 2)
 		
 		if args.verbose:
 			cv2.imshow("Threshed",roi_thresh)
