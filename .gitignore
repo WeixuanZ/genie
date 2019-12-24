@@ -1,5 +1,4 @@
 data/**
-src/dev/**
 *.png
 .DS_Store
 

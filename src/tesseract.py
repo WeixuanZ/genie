@@ -2,9 +2,11 @@ import os
 import argparse
 import numpy as np
 import cv2
+import pytesseract
 
 from Preprocessor import *
 
+# roi = (255, 300, 255, 28)
 
 parser = argparse.ArgumentParser(prog='tesseract',usage='%(prog)s [options] path', description='Prepare the training data by extracing the roi.')
 parser.add_argument('--clear', action='store_true', help='clear the output directory')
@@ -39,30 +41,13 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     if iteration == total: 
         print()
 
-# Modified for Felix's code
-def remove_border(img):
-	img = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,15,2)
-	for i, row in enumerate(img):
-		if np.count_nonzero(row) < 250:
-		    img[i,:] = np.ones(500, np.uint8) * 255
-	for i, col in enumerate(img[:]):
-		if np.count_nonzero(col) < 30:
-		    img[:, i] = np.ones(100, np.uint8) * 255
-
-	return img
-
-
 
 
 
 if args.clear:
 	print("Removing all the images")
-	os.system('(cd {} && rm ./*.png)'.format(FilePaths.gray))
-	os.system('(cd {} && rm ./*.png)'.format(FilePaths.gray_test))
-	os.system('(cd {} && rm ./*.png)'.format(FilePaths.gray_train))
-	os.system('(cd {} && rm ./*.png)'.format(FilePaths.threshed))
-	os.system('(cd {} && rm ./*.png)'.format(FilePaths.threshed_test))
-	os.system('(cd {} && rm ./*.png)'.format(FilePaths.threshed_train))
+	os.system('(cd {} && rm ./*.png)'.format('../data/result/'))
+
 
 else:
 	for path in input_path:
@@ -70,7 +55,7 @@ else:
 
 		# roi_thresh = remove_border(roi_thresh)
 
-		text = pytesseract.image_to_string(roi_thresh, config='outputbase digits')
+		text = pytesseract.image_to_string(roi_thresh, config='outputbase digits', lang="eng")
 		text = filter(lambda char: char not in " -?.!/;:", text)
 		text = "".join(list(text))
 
@@ -83,6 +68,7 @@ else:
 			cv2.waitKey(0)
 		else:
 			cv2.imwrite('../data/result/' + os.path.basename(path), roi_gray)
+			cv2.imwrite('../data/result/threshed/' + os.path.basename(path), roi_thresh)
 
 		printProgressBar(input_path.index(path), len(input_path), prefix = 'Progress:', suffix = 'Complete')
 
