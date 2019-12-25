@@ -15,12 +15,14 @@ parser = argparse.ArgumentParser(prog='main', usage='%(prog)s [options] path',
                                  description='Recognise gas meter reading')
 parser.add_argument('--clear', action='store_true', help='clear the output directory')
 parser.add_argument('-s', '--save', action='store_true', help='save the recognised data as csv')
+parser.add_argument('-r', '--raw', action='store_true', help='show raw data')
 parser.add_argument('Path', metavar='path', type=str, nargs='+', help='the path to raw images')
 
 args = parser.parse_args()
 input_path = args.Path
-s
+
 model = keras.models.load_model('../model/detector_model_2.hdf5')
+print(model.summary())
 
 result = []
 
@@ -61,8 +63,8 @@ else:
 
             for i in range(len(digits)):
                 digit = digits[i]
-                kernel = np.ones((2, 2), np.uint8)
-                digit = cv2.dilate(digit, kernel, iterations=1)
+                # kernel = np.ones((2, 2), np.uint8)
+                # digit = cv2.dilate(digit, kernel, iterations=1)
                 digit = np.dstack([digit, digit, digit])
                 digit = digit.reshape((1, 32, 32, 3))
                 prediction = model.predict(digit)
@@ -87,7 +89,9 @@ else:
     if args.save:
         np.savetxt('../data/data.csv', result, delimiter=',')
 
-    plt.plot(np.arange(1, len(input_path) + 1, 1), smooth(result))
+    if args.raw:
+        plt.plot(np.arange(1, len(result) + 1, 1), result)
+    plt.plot(np.arange(1, len(result) + 1, 1), smooth(result))
     plt.ylim([7.5e6, 7.6e6])
     plt.ylabel('Reading')
     plt.xlabel('Image Index')
