@@ -77,7 +77,7 @@ def train_model(model,batch_size=128, epoch=5, save_file='../model/detector_mode
     plt.show()
 
 
-train_model(build_model(), epoch=15, batch_size=128, save_file='../model/detector_model_2.hdf5')
+train_model(build_model(), epoch=20, batch_size=128, save_file='../model/detector_model_2.hdf5')
 
 
 

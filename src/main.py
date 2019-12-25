@@ -21,7 +21,7 @@ parser.add_argument('Path', metavar='path', type=str, nargs='+', help='the path 
 args = parser.parse_args()
 input_path = args.Path
 
-model = keras.models.load_model('../model/detector_model_2.hdf5')
+model = keras.models.load_model('../model/detector_model_1.hdf5')
 print(model.summary())
 
 result = []
