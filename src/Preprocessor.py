@@ -155,9 +155,8 @@ def extract_digit(image, inc_last=False):
     # removing similar
     for j in fewer_boxes:
         if distinct_boxes:
-            for k in range(len(distinct_boxes)):
-                if Euclidean(j, distinct_boxes[k]) > 10 and k == len(distinct_boxes) - 1:
-                    distinct_boxes.append(j)
+            if Euclidean(j, distinct_boxes[-1]) > 15:
+                distinct_boxes.append(j)
         else:
             distinct_boxes.append(j)
 
