@@ -2,6 +2,7 @@ data/**
 *.png
 *.DS_Store
 *.mat
+.idea/**
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

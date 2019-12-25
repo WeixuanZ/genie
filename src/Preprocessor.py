@@ -47,9 +47,9 @@ def extract_roi(image, img_size=(250, 30), verbose=False):
 
     gray = cv2.cvtColor(image, cv2.COLOR_RGB2GRAY)
     gray_thresh = np.uint8(np.where(gray > 140, 255, 0))
-    kernel = np.ones((5,5),np.uint8)
-    gray_thresh = cv2.erode(gray_thresh,kernel,iterations = 2)
-    gray_thresh = cv2.dilate(gray_thresh,kernel,iterations = 2)
+    kernel = np.ones((5, 5), np.uint8)
+    gray_thresh = cv2.erode(gray_thresh, kernel, iterations=2)
+    gray_thresh = cv2.dilate(gray_thresh, kernel, iterations=2)
     # # reduce noise
     # blur = cv2.GaussianBlur(gray, (7, 7), 0)
     # blur = gray
@@ -89,7 +89,7 @@ def extract_roi(image, img_size=(250, 30), verbose=False):
         # roi_thresh = cv2.medianBlur(roi_thresh, 3)
 
         if verbose is False:
-            return img_resize(roi_gray,img_size), img_resize(roi_thresh,img_size)
+            return img_resize(roi_gray, img_size), img_resize(roi_thresh, img_size)
         else:
             # Reference
             cv2.drawMarker(img, (int(iw / 2), int(ih / 2)), (0, 255, 0), markerType=cv2.MARKER_CROSS, markerSize=20,
@@ -120,7 +120,7 @@ def extract_roi(image, img_size=(250, 30), verbose=False):
 
 
 def remove_border(image):
-    image[:3,:]=255
+    image[:3, :] = 255
     image[-3:, :] = 255
     image[:, :3] = 255
     image[:, -3:] = 255
@@ -138,7 +138,7 @@ def Euclidean(vec1, vec2):
     return np.sqrt(((npvec1 - npvec2) ** 2).sum())
 
 
-def extract_digit(image, inc_last = False):
+def extract_digit(image, inc_last=False):
     mser = cv2.MSER_create(_min_area=50, _max_area=100)
     regions, boxes = mser.detectRegions(image)
     fewer_boxes = []
@@ -166,8 +166,8 @@ def extract_digit(image, inc_last = False):
     # extracting digits and store to a list
     for box in distinct_boxes[:8]:
         x, y, w, h = box
-        digit = image[y-2:y + h+2, x-2:x + w+2]
-        digit = img_resize(cv2.copyMakeBorder(digit, 2, 2, 2, 2, cv2.BORDER_CONSTANT, value=255),(32,32))
+        digit = image[y - 2:y + h + 2, x - 2:x + w + 2]
+        digit = img_resize(cv2.copyMakeBorder(digit, 2, 2, 2, 2, cv2.BORDER_CONSTANT, value=255), (32, 32))
         # digit = cv2.adaptiveThreshold(digit, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2)
         digits.append(digit)
 
@@ -175,9 +175,6 @@ def extract_digit(image, inc_last = False):
     #     cv2.imshow(str(i),digits[i])
 
     return digits[:7] if inc_last else digits
-
-
-
 
 
 if __name__ == '__main__':
@@ -198,6 +195,6 @@ if __name__ == '__main__':
         # digits[i] = cv2.blur(digits[i], (5, 5))
         # text = pytesseract.image_to_string(digits[i])
         # print(text)
-        cv2.imwrite('./'+str(i)+'.png',digits[i])
+        cv2.imwrite('./' + str(i) + '.png', digits[i])
 
     cv2.waitKey(0)
