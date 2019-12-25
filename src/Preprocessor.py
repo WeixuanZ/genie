@@ -182,9 +182,9 @@ if __name__ == '__main__':
 
     # print(roi_gray.shape)
 
-    # cv2.imshow('Image', img)
-    # cv2.imshow('ROI', roi_gray)
-    # cv2.imshow('Threshed', remove_border(roi_thresh))
+    cv2.imshow('Image', img)
+    cv2.imshow('ROI', roi_gray)
+    cv2.imshow('Threshed', remove_border(roi_thresh))
 
     digits = extract_digit(remove_border(roi_thresh))
 
