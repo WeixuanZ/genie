@@ -169,12 +169,13 @@ def extract_digit(image, raw_image=None, inc_last=False):
             digit = image[y - 2:y + h + 2, x - 2:x + w + 2]
         else:
             digit = raw_image[y - 2:y + h + 2, x - 2:x + w + 2]
-        digit = img_resize(cv2.copyMakeBorder(digit, 2, 2, 2, 2, cv2.BORDER_CONSTANT, value=255), (32, 32))
-        # digit = cv2.adaptiveThreshold(digit, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2)
+        digit = img_resize(digit, (28 // digit.shape[0] * digit.shape[1], 28))
+        if digit.shape[1] < 32:
+            dleft, dright = (32 - digit.shape[1]) // 2, (32 - digit.shape[1]) - ((32 - digit.shape[1]) // 2)
+            digit = cv2.copyMakeBorder(digit, 2, 2, dleft, dright, cv2.BORDER_CONSTANT, value=255)
+        else:
+            digit = img_resize(cv2.copyMakeBorder(digit, 2, 2, 2, 2, cv2.BORDER_CONSTANT, value=255), (32, 32))
         digits.append(digit)
-
-    # for i in range(len(digits)):
-    #     cv2.imshow(str(i),digits[i])
 
     return digits[:7] if inc_last else digits
 
