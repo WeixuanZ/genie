@@ -17,4 +17,4 @@
 
 ## TODO
 
-- [] Check digit extraction order, maybe using a mask instead of Euclidean distance
+- [ ] Check digit extraction order, maybe using a mask instead of Euclidean distance
