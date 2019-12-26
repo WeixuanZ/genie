@@ -91,8 +91,8 @@ else:
 
     if args.raw:
         plt.plot(np.arange(1, len(result) + 1, 1), result)
-    plt.plot(np.arange(1, len(result) + 1, 1), smooth(result))
-    plt.ylim([7.5e6, 7.6e6])
+    plt.plot(np.arange(1, len(smooth(result)) + 1, 1), smooth(result))
+    # plt.ylim([7.5e6, 7.6e6])
     plt.ylabel('Reading')
     plt.xlabel('Image Index')
     plt.show()
