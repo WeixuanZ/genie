@@ -138,7 +138,7 @@ def Euclidean(vec1, vec2):
     return np.sqrt(((npvec1 - npvec2) ** 2).sum())
 
 
-def extract_digit(image, inc_last=False):
+def extract_digit(image, raw_image=None, inc_last=False):
     mser = cv2.MSER_create(_min_area=50, _max_area=100)
     regions, boxes = mser.detectRegions(image)
     fewer_boxes = []
@@ -165,7 +165,10 @@ def extract_digit(image, inc_last=False):
     # extracting digits and store to a list
     for box in distinct_boxes[:8]:
         x, y, w, h = box
-        digit = image[y - 2:y + h + 2, x - 2:x + w + 2]
+        if raw_image is None:
+            digit = image[y - 2:y + h + 2, x - 2:x + w + 2]
+        else:
+            digit = raw_image[y - 2:y + h + 2, x - 2:x + w + 2]
         digit = img_resize(cv2.copyMakeBorder(digit, 2, 2, 2, 2, cv2.BORDER_CONSTANT, value=255), (32, 32))
         # digit = cv2.adaptiveThreshold(digit, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 15, 2)
         digits.append(digit)
