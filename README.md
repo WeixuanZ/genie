@@ -10,5 +10,11 @@
 
 1. VGG-like CNN trained on SVHN dataset
 
+	![Model](/doc/model.png)
+
 1. Post-processing
 	Using a median filter and convolution with FFT
+
+## TODO
+
+- [] Check digit extraction order, maybe using a mask instead of Euclidean distance
