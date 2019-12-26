@@ -1,4 +1,4 @@
-data/**
+data/**/*.png
 src/*.png
 *.DS_Store
 *.mat
