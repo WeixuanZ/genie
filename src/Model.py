@@ -25,21 +25,20 @@ def build_model(input_shape=(32, 32, 3)):
     # VGG-like convnet
     model = Sequential()
     model.add(Conv2D(num_filters, kernel_size, input_shape=input_shape, activation='relu'))
-    # model.add(BatchNormalization())
     model.add(Conv2D(num_filters, kernel_size, activation='relu'))
     model.add(MaxPooling2D(pool_size=pool_size))
     # (16, 8, 32)
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.4))
 
     model.add(Conv2D(num_filters * 2, kernel_size, activation='relu'))
     model.add(Conv2D(num_filters * 2, kernel_size, activation='relu'))
     model.add(MaxPooling2D(pool_size=pool_size))
     # (8, 4, 64) = (2048)
-    model.add(Dropout(0.5))
+    model.add(Dropout(0.2))
 
     model.add(Flatten())
     model.add(Dense(1024, activation='relu'))
-    model.add(Dense(512, activation='relu'))
+    # model.add(Dense(1024, activation='relu'))
     model.add(Dropout(0.5))
     model.add(Dense(11, activation='softmax'))
 
@@ -60,8 +59,8 @@ def train_model(model,batch_size=128, epoch=5, save_file='../model/detector_mode
     x_test, y_test = load_data('../model/test.mat')
     x_extra, y_extra = load_data('../model/extra.mat')
 
-    # x_train, y_train = np.concatenate([x_train, x_extra])[:-1000], np.concatenate([y_train, y_extra])[:-1000]
-    x_val, y_val = x_extra[-2000:], y_extra[-2000:]
+    # x_train, y_train = np.concatenate([x_train, x_extra])[:-5000], np.concatenate([y_train, y_extra])[:-5000]
+    x_val, y_val = x_extra[-5000:], y_extra[-5000:]
 
     history = model.fit(x_train, y_train, batch_size=batch_size, epochs=epoch, verbose=1, validation_data=(x_val, y_val))
     score = model.evaluate(x_test, y_test, verbose=1)
@@ -77,7 +76,7 @@ def train_model(model,batch_size=128, epoch=5, save_file='../model/detector_mode
     plt.show()
 
 
-train_model(build_model(), epoch=20, batch_size=128, save_file='../model/detector_model_2.hdf5')
+train_model(build_model(), epoch=5, batch_size=128, save_file='../model/detector_model_new4.hdf5')
 
 
 
