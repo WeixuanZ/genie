@@ -7,6 +7,7 @@ import numpy as np
 import cv2
 import keras
 import matplotlib.pyplot as plt
+import glob
 
 from Preprocessor import *
 from Postprocessor import *
@@ -16,12 +17,13 @@ parser = argparse.ArgumentParser(prog='main', usage='%(prog)s [options] path',
 parser.add_argument('--clear', action='store_true', help='clear the output directory')
 parser.add_argument('-s', '--save', action='store_true', help='save the recognised data as csv')
 parser.add_argument('-r', '--raw', action='store_true', help='show raw data')
-parser.add_argument('Path', metavar='path', type=str, nargs='+', help='the path to raw images')
+parser.add_argument('Path', metavar='path', type=str, help='the path to raw images')
 
 args = parser.parse_args()
-input_path = args.Path
+input_path = os.path.join(args.Path,'*.png')
+input_path = sorted(glob.glob(input_path))
 
-model = keras.models.load_model('../model/detector_model_1.hdf5')
+model = keras.models.load_model('../model/detector_model_new_nni.hdf5')
 print(model.summary())
 
 result = []
@@ -79,9 +81,9 @@ else:
 
         print(''.join(texts))
         result.append(int(''.join(texts)))
-        cv2.putText(roi_gray, str(''.join(texts)), (2, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
+        # cv2.putText(roi_gray, str(''.join(texts)), (2, 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
 
-        cv2.imwrite('../data/result/' + os.path.basename(path), roi_gray)
+        # cv2.imwrite('../data/result/' + os.path.basename(path), roi_gray)
         # cv2.imwrite('../data/result/threshed/' + os.path.basename(path), roi_thresh)
 
         printProgressBar(input_path.index(path), len(input_path), prefix='Progress:', suffix='Complete')
@@ -91,8 +93,9 @@ else:
 
     if args.raw:
         plt.plot(np.arange(1, len(result) + 1, 1), result)
+        plt.ylim([7.5e6, 7.6e6])
+
     plt.plot(np.arange(1, len(smooth(result)) + 1, 1), smooth(result))
-    # plt.ylim([7.5e6, 7.6e6])
     plt.ylabel('Reading')
     plt.xlabel('Image Index')
     plt.show()
