@@ -1,0 +1,10 @@
+{
+    "batch_size": {"_type":"choice","_value":[64, 128, 256, 512]},
+    "epochs": {"_type":"randint","_value":[5,15]},
+    "dropout_rate_1":{"_type":"uniform","_value":[0.1,0.6]},
+    "dropout_rate_2":{"_type":"uniform","_value":[0.1,0.6]},
+    "channel_1_num":{"_type":"choice","_value":[32,64,128]},
+    "channel_2_num":{"_type":"choice","_value":[32,64,128]},
+    "conv_size":{"_type":"choice","_value":[2,3,5]},
+    "hidden_size":{"_type":"choice","_value":[512, 1024, 2048]}
+}
