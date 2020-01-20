@@ -1,7 +1,7 @@
 authorName: default
 experimentName: genie_nni_bohb
 trialConcurrency: 1
-maxExecDuration: 5h
+maxExecDuration: 10h
 maxTrialNum: 1000
 #choice: local, remote, pai
 trainingServicePlatform: local
@@ -16,6 +16,7 @@ advisor:
     max_budget: 27
     min_budget: 1
     eta: 3
+    num_samples: 10
     optimize_mode: maximize
 trial:
   command: python3 model_nni.py

@@ -6,6 +6,8 @@ os.environ["KERAS_BACKEND"] = "plaidml.keras.backend"
 # os.environ["KERAS_BACKEND"] = "tensorflow"
 
 import numpy as np
+# np.random.seed(1)
+
 import keras
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten, Conv2D, MaxPooling2D
@@ -44,28 +46,36 @@ class SendMetrics(keras.callbacks.Callback):
 def build_model(params, input_shape=(32, 32, 3)):
 
     # size of pooling area for max pooling
-    pool_size = (params['pool_size'], params['pool_size'])
+    pool_size = (2,2)
     # convolution kernel size
-    kernel_size = (params['conv_size'], params['conv_size'])
+    kernel_size = (2,2)
+
+    num_filters = 64
 
     # VGG-like convnet
     model = Sequential()
-    model.add(Conv2D(params['channel_1_num'], kernel_size, input_shape=input_shape, activation='relu'))
-    model.add(Conv2D(params['channel_1_num'], kernel_size, activation='relu'))
+    model.add(Conv2D(num_filters, kernel_size, input_shape=input_shape, activation='relu'))
+    model.add(Conv2D(num_filters, kernel_size, activation='relu'))
     model.add(MaxPooling2D(pool_size=pool_size))
-    # (16, 8, 32)
     model.add(Dropout(params['dropout_rate_1']))
 
-    model.add(Conv2D(params['channel_2_num'], kernel_size, activation='relu'))
-    model.add(Conv2D(params['channel_2_num'], kernel_size, activation='relu'))
+    model.add(Conv2D(num_filters * 2, kernel_size, activation='relu'))
+    model.add(Conv2D(num_filters * 2, kernel_size, activation='relu'))
     model.add(MaxPooling2D(pool_size=pool_size))
-    # (8, 4, 64) = (2048)
     model.add(Dropout(params['dropout_rate_2']))
 
-    model.add(Flatten())
-    model.add(Dense(params['hidden_size'], activation='relu'))
-    model.add(Dropout(0.5))
+    model.add(Conv2D(num_filters * 4, kernel_size, activation='relu'))
+    model.add(Conv2D(num_filters * 4, kernel_size, activation='relu'))
+    model.add(Conv2D(num_filters * 4, kernel_size, activation='relu'))
+    model.add(Conv2D(num_filters * 4, kernel_size, activation='relu'))
+    model.add(MaxPooling2D(pool_size=pool_size))
+    model.add(Dropout(params['dropout_rate_3']))
 
+    model.add(Flatten())
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dense(1024, activation='relu'))
+    model.add(Dropout(0.5))
     model.add(Dense(11, activation='softmax'))
 
 
@@ -107,16 +117,10 @@ def get_params():
     parser = argparse.ArgumentParser()
     parser.add_argument("--batch_size", type=int, default=128, help="batch size", required=False)
     parser.add_argument("--epochs", type=int, default=5, help="Train epochs", required=False)
-    # parser.add_argument("--learning_rate", type=float, default=0.001, help="Train epochs", required=False)
-    parser.add_argument("--dropout_rate_1", type=float, default=0.5, help="dropout rate", required=False)
-    parser.add_argument("--dropout_rate_2", type=float, default=0.25, help="dropout rate", required=False)
-    parser.add_argument("--channel_1_num", type=int, default=32, required=False)
-    parser.add_argument("--channel_2_num", type=int, default=64, required=False)
-    parser.add_argument("--conv_size", type=int, default=3, required=False)
-    parser.add_argument("--pool_size", type=int, default=2, required=False)
-    parser.add_argument("--hidden_size", type=int, default=1024, required=False)
     parser.add_argument("--optimizer", type=str, default='Adam', required=False)
-
+    parser.add_argument("--dropout_rate_1", type=float, default=0.33, help="dropout rate", required=False)
+    parser.add_argument("--dropout_rate_2", type=float, default=0.33, help="dropout rate", required=False)
+    parser.add_argument("--dropout_rate_3", type=float, default=0.33, help="dropout rate", required=False)
     args, _ = parser.parse_known_args()
     return args
 
