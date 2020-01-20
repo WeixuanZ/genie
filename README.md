@@ -15,6 +15,8 @@
 1. Post-processing
 	Using a median filter and convolution with FFT
 
+	![Model](/doc/results.png)
+
 ## TODO
 
 - [ ] Check digit extraction order, maybe using a mask instead of Euclidean distance
