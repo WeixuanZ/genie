@@ -1,5 +1,7 @@
 # Gas meter monitoring using OpenCV and CNN
 
+The trained models are tracked using [Git Large File Storage](https://git-lfs.github.com), please ensure it is installed before cloning.
+
 1. ROI extraction with thresholding and edge detection
 
 	![ROI extraction](/doc/roi.png)

@@ -3,6 +3,9 @@ src/*.png
 *.DS_Store
 *.mat
 .idea/**
+doc/presentation_imgs/
+model/dev/
+model/new_keras
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
